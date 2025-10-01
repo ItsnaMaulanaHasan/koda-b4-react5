@@ -2,9 +2,11 @@ import CardInput from "../components/CardInput";
 import Input from "../components/Input";
 import Checkbox from "../components/Checkbox";
 import Radio from "../components/Radio";
+import Alert from "../components/Alert";
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
 const surveyFormSchema = yup.object({
@@ -20,7 +22,10 @@ const surveyFormSchema = yup.object({
 });
 
 function HomePage() {
+  const navigate = useNavigate();
   const [cigaretteBrands, setCigaretteBrands] = useState([]);
+  const [alertStatus, setAlertStatus] = useState({ type: "", message: "" });
+
   const {
     register,
     handleSubmit,
@@ -43,19 +48,30 @@ function HomePage() {
   const gender = watch("gender");
 
   const onSubmit = (data) => {
-    const surveyData = {
-      ...data,
-      id: Date.now(),
-    };
+    try {
+      const surveyData = {
+        ...data,
+        id: Date.now(),
+      };
 
-    const existingData = JSON.parse(localStorage.getItem("surveyData") || "[]");
-    existingData.push(surveyData);
-    localStorage.setItem("surveyData", JSON.stringify(existingData));
+      const existingData = JSON.parse(localStorage.getItem("surveyData") || "[]");
+      existingData.push(surveyData);
+      localStorage.setItem("surveyData", JSON.stringify(existingData));
 
-    alert("Form berhasil disubmit!\n\nData telah disimpan. Cek console untuk melihat data.");
+      setAlertStatus({
+        type: "success",
+        message: "Form berhasil disubmit! Mengalihkan ke halaman submission...",
+      });
 
-    reset();
-    setCigaretteBrands([]);
+      setTimeout(() => {
+        navigate("/submission");
+      }, 1500);
+    } catch (error) {
+      setAlertStatus({
+        type: "error",
+        message: `Terjadi kesalahan saat menyimpan data. Silakan coba lagi: ${error}`,
+      });
+    }
   };
 
   const handleCheckboxChange = (brand) => {
@@ -67,22 +83,23 @@ function HomePage() {
 
   return (
     <section id="form-container" className="py-[1.25rem] min-w-[40%]">
-      <form id="form-survey" className="flex flex-col gap-[0.75rem]" onSubmit={handleSubmit(onSubmit)} action="/submission" method="">
+      <form id="form-survey" className="form-survey" onSubmit={handleSubmit(onSubmit)} action="/submission" method="">
+        <Alert type={alertStatus.type} message={alertStatus.message} onClose={() => setAlertStatus({ type: "", message: "" })} />
         {/* header */}
-        <div className="flex flex-col gap-[1.5rem] p-[1.875rem] bg-white rounded-[12px] border-t-[10px] border-[#ff5f26]">
-          <span className="font-[500] text-[2rem]">Form Survey Perokok</span>
-          <div className="h-[1px] w-full bg-black"></div>
-          <div className="flex justify-between items-center">
-            <div className="font-[500] text-[#373737]">
+        <div className="form-header">
+          <span className="form-title">Form Survey Perokok</span>
+          <div className="divider"></div>
+          <div className="header-info">
+            <div className="user-email">
               hasanmaulana453@gmail.com{" "}
-              <a className="decoration-none font-normal text-[#377dff]" href="">
+              <a className="change-account-link" href="">
                 Ganti akun
               </a>
             </div>
-            <img className="h-[20px]" src="/public/icon/icon-cloud-check.svg" alt="Icon Cloud Check" />
+            <img className="icon-small" src="/public/icon/icon-cloud-check.svg" alt="Icon Cloud Check" />
           </div>
-          <div className="flex items-center gap-[10px]">
-            <img className="h-[20px]" src="/public/icon/icon-email-failed.svg" alt="Icon email failed" />
+          <div className="privacy-info">
+            <img className="icon-small" src="/public/icon/icon-email-failed.svg" alt="Icon email failed" />
             Tidak dibagikan
           </div>
         </div>
@@ -92,7 +109,7 @@ function HomePage() {
           input={
             <div>
               <Input id="fullName" type="text" {...register("fullName")} />
-              {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+              {errors.fullName && <p className="error-message">{errors.fullName.message}</p>}
             </div>
           }
         />
@@ -102,7 +119,7 @@ function HomePage() {
           input={
             <div>
               <Input id="age" type="number" {...register("age")} />
-              {errors.age && <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>}
+              {errors.age && <p className="error-message">{errors.age.message}</p>}
             </div>
           }
         />
@@ -111,11 +128,11 @@ function HomePage() {
           label={<label htmlFor="man">Apa jenis kelamin Anda?</label>}
           input={
             <div>
-              <div className="flex flex-col gap-[0.625rem]">
+              <div className="radio-group">
                 <Radio id="man" checked={gender === "man"} onChange={() => setValue("gender", "man", { shouldValidate: true })} label="Laki-laki" />
                 <Radio id="woman" checked={gender === "woman"} onChange={() => setValue("gender", "woman", { shouldValidate: true })} label="Perempuan" />
               </div>
-              {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+              {errors.gender && <p className="error-message">{errors.gender.message}</p>}
             </div>
           }
         />
@@ -124,7 +141,7 @@ function HomePage() {
           label={<label htmlFor="smoker">Apakah Anda seorang perokok?</label>}
           input={
             <div>
-              <div className="flex flex-col gap-[0.625rem]">
+              <div className="radio-group">
                 <Radio id="smoker" checked={isSmoker === true} onChange={() => setValue("isSmoker", true, { shouldValidate: true })} label="Ya" />
                 <Radio
                   id="noSmoker"
@@ -137,7 +154,7 @@ function HomePage() {
                   label="Tidak"
                 />
               </div>
-              {errors.isSmoker && <p className="text-red-500 text-sm mt-1">{errors.isSmoker.message}</p>}
+              {errors.isSmoker && <p className="radio-group">{errors.isSmoker.message}</p>}
             </div>
           }
         />
@@ -146,18 +163,18 @@ function HomePage() {
           label={<label htmlFor="brands">Jika Anda perokok, rokok apa yang Anda pernah coba?</label>}
           input={
             <div>
-              <div className="flex flex-col gap-[0.625rem]">
+              <div className="checkbox-group">
                 <Checkbox checked={cigaretteBrands.includes("GudangGaram")} onChange={() => handleCheckboxChange("GudangGaram")} label="Gudang Garam" />
                 <Checkbox checked={cigaretteBrands.includes("LuckyStrike")} onChange={() => handleCheckboxChange("LuckyStrike")} label="Lucky Strike" />
                 <Checkbox checked={cigaretteBrands.includes("Marlboro")} onChange={() => handleCheckboxChange("Marlboro")} label="Marlboro" />
                 <Checkbox checked={cigaretteBrands.includes("Esse")} onChange={() => handleCheckboxChange("Esse")} label="Esse" />
               </div>
-              {errors.cigaretteBrands && <p className="text-red-500 text-sm mt-1">{errors.cigaretteBrands.message}</p>}
+              {errors.cigaretteBrands && <p className="error-message">{errors.cigaretteBrands.message}</p>}
             </div>
           }
         />
-        <div className="flex gap-[0.75rem]">
-          <button type="submit" className="px-6 py-2 bg-[#ff5f26] text-white rounded-lg hover:bg-[#e54e1a] transition">
+        <div className="form-buttons">
+          <button type="submit" className="submit-button">
             Kirim
           </button>
           <button
@@ -166,7 +183,7 @@ function HomePage() {
               reset();
               setCigaretteBrands([]);
             }}
-            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+            className="reset-button"
           >
             Kosongkan formulir
           </button>
