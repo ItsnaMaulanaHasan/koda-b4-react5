@@ -1,16 +1,26 @@
-# React + Vite
+# Survey Form Perokok
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikasi form survey sederhana untuk mengumpulkan data responden perokok dengan validasi form dan penyimpanan data ke localStorage.
 
-Currently, two official plugins are available:
+## Fitur
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ Form survey dengan validasi (React Hook Form + Yup)
+- ✅ Custom radio button dan checkbox
+- ✅ Conditional rendering (pertanyaan rokok muncul jika perokok)
+- ✅ Penyimpanan data ke localStorage
+- ✅ Halaman tabel untuk melihat semua submission
+- ✅ Alert modal untuk notifikasi
+- ✅ Auto redirect setelah submit
 
-## React Compiler
+## Teknologi
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- React Hook Form
+- Yup (validasi)
+- React Router DOM
+- Tailwind CSS
+- Lucide React (icons)
 
-## Expanding the ESLint configuration
+### Preview
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+![preview](public/gif/preview.gif)
